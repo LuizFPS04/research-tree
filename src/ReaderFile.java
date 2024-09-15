@@ -27,7 +27,7 @@ public class ReaderFile {
      *
      * @param path O caminho do arquivo a ser lido.
      */
-    public static void Reader(String path) {
+    public static void readFie(String path) {
         try {
             FileReader archive = new FileReader(path);
             BufferedReader reader = new BufferedReader(archive);
@@ -36,30 +36,34 @@ public class ReaderFile {
             int countLine = 1;
 
             BinaryTree tree = new BinaryTree();
-            WordList defferedWords = new WordList();
 
             while (line != null) {
-                String[] words = line.split(" ");
+                String[] words = line.split("\\s+");
 
                 for (String word : words) {
                     word = Normalizer.normalize(word, Normalizer.Form.NFD)
-                        .replace("\"", "")
-                        .replace("-", "")
-                        .replace(",", "")
-                        .replace("/", "")
-                        .replace("?", "")
-                        .replace("!", "")
-                        .replace(".", "")
-                        .replace(" ", "")
-                        .replace("[\\p{M}]", "")
-                        .toLowerCase();
+                                    .replace("\"", "")
+                                    .replace("-", "")
+                                    .replace(",", "")
+                                    .replace("/", "")
+                                    .replace("?", "")
+                                    .replace("!", "")
+                                    .replace(".", "")
+                                    .replace(":", "")
+                                    .replace("\\s+", "")
+                                    .replace("[\\p{M}]", "")
+                                    .toLowerCase();
 
-                    if (word.compareTo("a") > 0 && word.compareTo("f") > 0) {
-                        if (word.length() >= 3) {
+                    if (word.length() > 2) {
+                        if (countLine == 1) {                          
+                            if (word.compareTo("a") > 0 && word.compareTo("f") > 0) {
+                                tree.insert(new Node(word, new Line(countLine)));
+                            } else {
+                                tree.insert(new Node(word, new Line(countLine)));
+                            }
+                        } else {
                             tree.insert(new Node(word, new Line(countLine)));
                         }
-                    } else {
-                        defferedWords.insertEnd(new Word(word, countLine));
                     }
                 }
 
@@ -67,17 +71,7 @@ public class ReaderFile {
                 line = reader.readLine();
             }
 
-            String[] defferedWordsArr = defferedWords.myWords().split(", ");
-            String[] defferedWordsLines = defferedWords.myLines().split(", ");
-
-            for (int i = 0; i < defferedWordsArr.length; i++) {
-                String word = defferedWordsArr[i];
-                int lineFound = Integer.parseInt(defferedWordsLines[i]);
-
-                tree.insert(new Node(word, new Line(lineFound)));
-            }
-
-            tree.posOrder();
+            tree.onOrder();
             reader.close();
 
         } catch (IOException e) {
@@ -103,7 +97,7 @@ public class ReaderFile {
 
                     System.out.printf("Open file: %s\n", fileNameStr);
 
-                    Reader("src/docs/" + fileName);
+                    readFie("src/docs/" + fileName);
                 }
             }
         } catch (IOException | DirectoryIteratorException e) {
